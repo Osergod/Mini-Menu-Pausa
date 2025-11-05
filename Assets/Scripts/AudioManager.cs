@@ -50,4 +50,24 @@ public class AudioManager : MonoBehaviour
     {
         sfxSource.PlayOneShot(sfxSource.clip);
     }
+
+    // Función para reiniciar los valores de los sliders de sonido
+    public void RestartValuesVolume()
+    {
+        // Borrar las claves de PlayerPrefs
+        PlayerPrefs.DeleteKey("MusicVol");
+        PlayerPrefs.DeleteKey("SFXVol");
+
+        // Restablecer los sliders a los valores predeterminados (0.5f)
+        musicSlider.value = 0.5f;
+        sfxSlider.value = 0.5f;
+
+        // Actualizar el volumen de las fuentes de audio
+        musicSource.volume = 0.5f;
+        sfxSource.volume = 0.5f;
+
+        // Guardar los valores predeterminados en PlayerPrefs para la próxima vez
+        PlayerPrefs.SetFloat("MusicVol", 0.5f);
+        PlayerPrefs.SetFloat("SFXVol", 0.5f);
+    }
 }
