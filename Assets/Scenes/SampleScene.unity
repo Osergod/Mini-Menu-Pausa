@@ -3174,6 +3174,7 @@ MonoBehaviour:
   musicSlider: {fileID: 991715713}
   sfxSlider: {fileID: 1620394040}
   resolutionDropdown: {fileID: 1182558911}
+  fullscreenToggle: {fileID: 1354933104}
 --- !u!1 &1332818474
 GameObject:
   m_ObjectHideFlags: 0
@@ -3294,7 +3295,19 @@ MonoBehaviour:
   m_Group: {fileID: 0}
   onValueChanged:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1330898761}
+        m_TargetAssemblyTypeName: AudioManager, Assembly-CSharp
+        m_MethodName: OnFullscreenToggleChanged
+        m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   m_IsOn: 1
 --- !u!1 &1387101155
 GameObject:
