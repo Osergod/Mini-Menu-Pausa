@@ -10,14 +10,7 @@ public class PauseMenu : MonoBehaviour
         // Detecta cuando se presiona la tecla Escape
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            if (isPaused)
-            {
-                Resume();
-            }
-            else
-            {
-                Pause();
-            }
+            Menu();
         }
     }
 
@@ -33,5 +26,17 @@ public class PauseMenu : MonoBehaviour
         pauseMenuUI.SetActive(true);
         Time.timeScale = 0f; // Detiene el juego
         isPaused = true;
+    }
+
+    void Menu()
+    {
+        if (isPaused)
+        {
+            Resume();
+        }
+        else
+        {
+            Pause();
+        }
     }
 }
