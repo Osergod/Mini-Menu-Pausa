@@ -10,12 +10,17 @@ public class AudioManager : MonoBehaviour
     public Slider musicSlider;
     public Slider sfxSlider;
 
-    public TMP_Dropdown resolutionDropdown;  // TMP Dropdown
+    public TMP_Dropdown resolutionDropdown;
+    public Toggle fullscreenToggle;
 
-    public Toggle fullscreenToggle;  // Referencia al Toggle de Pantalla Completa
+    private bool initializing = true; // Para evitar llamadas al iniciar
 
     void Start()
     {
+        // --- Evitar ejecuciones durante inicialización ---
+        initializing = true;
+
+        // --- Cargar volúmenes ---
         float musicVol = PlayerPrefs.GetFloat("MusicVol", 0.5f);
         float sfxVol = PlayerPrefs.GetFloat("SFXVol", 0.5f);
 
@@ -24,8 +29,12 @@ public class AudioManager : MonoBehaviour
         musicSource.volume = musicVol;
         sfxSource.volume = sfxVol;
 
-        int savedResolution = PlayerPrefs.GetInt("Resolution", 0);
+        // --- Conectar eventos de sliders ---
+        musicSlider.onValueChanged.AddListener(SetMusicVolume);
+        sfxSlider.onValueChanged.AddListener(SetSFXVolume);
 
+        // --- Resolución ---
+        int savedResolution = PlayerPrefs.GetInt("Resolution", 0);
         if (resolutionDropdown != null && resolutionDropdown.options.Count > 0)
         {
             savedResolution = Mathf.Clamp(savedResolution, 0, resolutionDropdown.options.Count - 1);
@@ -34,28 +43,31 @@ public class AudioManager : MonoBehaviour
             ApplyResolutionByIndex(savedResolution);
             resolutionDropdown.onValueChanged.AddListener(OnResolutionChanged);
         }
-        else
-        {
-            Debug.LogWarning("ResolutionDropdown (TMP) no tiene opciones o no está asignado.");
-        }
 
-        // Configurar el evento del Toggle para cambiar entre pantalla completa y ventana
-        fullscreenToggle.isOn = Screen.fullScreen;
+        // --- Pantalla completa ---
+        bool isFullscreen = PlayerPrefs.GetInt("Fullscreen", 0) == 1;
+        fullscreenToggle.isOn = isFullscreen;
+        Screen.fullScreen = isFullscreen;
         fullscreenToggle.onValueChanged.AddListener(OnFullscreenToggleChanged);
 
-
+        // --- Música ---
         if (!musicSource.isPlaying)
             musicSource.Play();
+
+        // --- Fin de inicialización ---
+        initializing = false;
     }
 
     public void SetMusicVolume(float volume)
     {
+        if (initializing) return;
         musicSource.volume = volume;
         PlayerPrefs.SetFloat("MusicVol", volume);
     }
 
     public void SetSFXVolume(float volume)
     {
+        if (initializing) return;
         sfxSource.volume = volume;
         PlayerPrefs.SetFloat("SFXVol", volume);
     }
@@ -68,8 +80,10 @@ public class AudioManager : MonoBehaviour
 
     public void OnResolutionChanged(int index)
     {
+        if (initializing) return;
         ApplyResolutionByIndex(index);
         PlayerPrefs.SetInt("Resolution", index);
+        PlayerPrefs.Save(); // Guardar todos los cambios actuales juntos
     }
 
     private void ApplyResolutionByIndex(int index)
@@ -79,8 +93,7 @@ public class AudioManager : MonoBehaviour
             case 0: SetResolution(1920, 1080); break;
             case 1: SetResolution(1280, 720); break;
             case 2: SetResolution(1024, 768); break;
-            default:
-                SetResolution(1920, 1080); break;
+            default: SetResolution(1920, 1080); break;
         }
     }
 
@@ -96,19 +109,19 @@ public class AudioManager : MonoBehaviour
 
         musicSlider.value = 0.5f;
         sfxSlider.value = 0.5f;
-
         musicSource.volume = 0.5f;
         sfxSource.volume = 0.5f;
 
         PlayerPrefs.SetFloat("MusicVol", 0.5f);
         PlayerPrefs.SetFloat("SFXVol", 0.5f);
+        PlayerPrefs.Save();
     }
 
     public void OnFullscreenToggleChanged(bool isFullscreen)
     {
-        // Cambiar el modo de pantalla según el estado del Toggle
+        if (initializing) return;
         Screen.fullScreen = isFullscreen;
-        PlayerPrefs.SetInt("Fullscreen", isFullscreen ? 1 : 0);  // Guardar el estado en PlayerPrefs
+        PlayerPrefs.SetInt("Fullscreen", isFullscreen ? 1 : 0);
+        PlayerPrefs.Save(); // Guarda solo al cambiar modo pantalla
     }
-
 }
