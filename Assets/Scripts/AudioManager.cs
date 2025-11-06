@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class AudioManager : MonoBehaviour
 {
@@ -9,64 +10,89 @@ public class AudioManager : MonoBehaviour
     public Slider musicSlider;
     public Slider sfxSlider;
 
+    public TMP_Dropdown resolutionDropdown;  // TMP Dropdown
+
     void Start()
     {
-        // Cargar los valores guardados desde PlayerPrefs, si existen
-        float musicVol = PlayerPrefs.GetFloat("MusicVol", 0.5f);  // Valor por defecto 0.5 si no existe
-        float sfxVol = PlayerPrefs.GetFloat("SFXVol", 0.5f);      // Valor por defecto 0.5 si no existe
+        float musicVol = PlayerPrefs.GetFloat("MusicVol", 0.5f);
+        float sfxVol = PlayerPrefs.GetFloat("SFXVol", 0.5f);
 
-        // Asignar los valores cargados a los sliders y a los audio sources
         musicSlider.value = musicVol;
         sfxSlider.value = sfxVol;
         musicSource.volume = musicVol;
         sfxSource.volume = sfxVol;
 
-        // Configura los eventos de los sliders para cambiar el volumen en tiempo real
-        musicSlider.onValueChanged.AddListener(SetMusicVolume);
-        sfxSlider.onValueChanged.AddListener(SetSFXVolume);
+        int savedResolution = PlayerPrefs.GetInt("Resolution", 0);
 
-        // Empieza la música
-        musicSource.Play();
+        if (resolutionDropdown != null && resolutionDropdown.options.Count > 0)
+        {
+            savedResolution = Mathf.Clamp(savedResolution, 0, resolutionDropdown.options.Count - 1);
+            resolutionDropdown.value = savedResolution;
+            resolutionDropdown.RefreshShownValue();
+            ApplyResolutionByIndex(savedResolution);
+            resolutionDropdown.onValueChanged.AddListener(OnResolutionChanged);
+        }
+        else
+        {
+            Debug.LogWarning("ResolutionDropdown (TMP) no tiene opciones o no está asignado.");
+        }
+
+        if (!musicSource.isPlaying)
+            musicSource.Play();
     }
 
-    // Función para cambiar el volumen de la música
     public void SetMusicVolume(float volume)
     {
         musicSource.volume = volume;
-        // Guardar el volumen en PlayerPrefs
         PlayerPrefs.SetFloat("MusicVol", volume);
     }
 
-    // Función para cambiar el volumen de los efectos de sonido
     public void SetSFXVolume(float volume)
     {
         sfxSource.volume = volume;
-        // Guardar el volumen en PlayerPrefs
         PlayerPrefs.SetFloat("SFXVol", volume);
     }
 
-    // Función para reproducir un SFX cuando se hace clic
     public void PlaySFX()
     {
-        sfxSource.PlayOneShot(sfxSource.clip);
+        if (sfxSource.clip != null)
+            sfxSource.PlayOneShot(sfxSource.clip);
     }
 
-    // Función para reiniciar los valores de los sliders de sonido
+    public void OnResolutionChanged(int index)
+    {
+        ApplyResolutionByIndex(index);
+        PlayerPrefs.SetInt("Resolution", index);
+    }
+
+    private void ApplyResolutionByIndex(int index)
+    {
+        switch (index)
+        {
+            case 0: SetResolution(1920, 1080); break;
+            case 1: SetResolution(1280, 720); break;
+            case 2: SetResolution(1024, 768); break;
+            default:
+                SetResolution(1920, 1080); break;
+        }
+    }
+
+    private void SetResolution(int width, int height)
+    {
+        Screen.SetResolution(width, height, Screen.fullScreen);
+    }
+
     public void RestartValuesVolume()
     {
-        // Borrar las claves de PlayerPrefs
         PlayerPrefs.DeleteKey("MusicVol");
         PlayerPrefs.DeleteKey("SFXVol");
 
-        // Restablecer los sliders a los valores predeterminados (0.5f)
         musicSlider.value = 0.5f;
         sfxSlider.value = 0.5f;
 
-        // Actualizar el volumen de las fuentes de audio
         musicSource.volume = 0.5f;
         sfxSource.volume = 0.5f;
 
-        // Guardar los valores predeterminados en PlayerPrefs para la próxima vez
         PlayerPrefs.SetFloat("MusicVol", 0.5f);
         PlayerPrefs.SetFloat("SFXVol", 0.5f);
     }
