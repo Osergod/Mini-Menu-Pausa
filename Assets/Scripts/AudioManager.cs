@@ -12,6 +12,8 @@ public class AudioManager : MonoBehaviour
 
     public TMP_Dropdown resolutionDropdown;  // TMP Dropdown
 
+    public Toggle fullscreenToggle;  // Referencia al Toggle de Pantalla Completa
+
     void Start()
     {
         float musicVol = PlayerPrefs.GetFloat("MusicVol", 0.5f);
@@ -36,6 +38,11 @@ public class AudioManager : MonoBehaviour
         {
             Debug.LogWarning("ResolutionDropdown (TMP) no tiene opciones o no está asignado.");
         }
+
+        // Configurar el evento del Toggle para cambiar entre pantalla completa y ventana
+        fullscreenToggle.isOn = Screen.fullScreen;
+        fullscreenToggle.onValueChanged.AddListener(OnFullscreenToggleChanged);
+
 
         if (!musicSource.isPlaying)
             musicSource.Play();
@@ -96,4 +103,12 @@ public class AudioManager : MonoBehaviour
         PlayerPrefs.SetFloat("MusicVol", 0.5f);
         PlayerPrefs.SetFloat("SFXVol", 0.5f);
     }
+
+    public void OnFullscreenToggleChanged(bool isFullscreen)
+    {
+        // Cambiar el modo de pantalla según el estado del Toggle
+        Screen.fullScreen = isFullscreen;
+        PlayerPrefs.SetInt("Fullscreen", isFullscreen ? 1 : 0);  // Guardar el estado en PlayerPrefs
+    }
+
 }
