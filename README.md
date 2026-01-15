@@ -1,4 +1,4 @@
-#RA1 ACT.2 → Petit menú de pausa 
+# RA1 ACT.2 → Petit menú de pausa 
 
 Enunciat 
 Heu de fer un petit, i molt simple, menú de pausa, que es pugui 
